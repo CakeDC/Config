@@ -7,7 +7,7 @@ class Config extends ConfigAppModel {
  * @var string Name
  * @access public
  */
-	public $name = $this->alias;
+	public $name = 'Config';
 
 /**
  * Config file to deal with
@@ -48,7 +48,7 @@ class Config extends ConfigAppModel {
  * @return array
  * @access public
  */
-	public static function afterFind($results) {
+	public function afterFind($results) {
 		return $this->buildFields($results);
 	}
 
