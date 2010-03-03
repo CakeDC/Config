@@ -7,7 +7,7 @@ class ConfigsController extends ConfigAppController {
  * @var string
  * @access public
  */
-	public $name = 'Configurations';
+	public $name = 'Configs';
 
 /**
  * Models to load
