@@ -45,6 +45,7 @@ class ConfigTestCase extends CakeTestCase {
  * @access public
  */
 	public function testConfigSavingAndReading() {
+		Config::$configFile = 'tmp_config.php';
 		$config = array(
 			'Config' => array(
 				'tester' => 'burzum',
@@ -57,9 +58,7 @@ class ConfigTestCase extends CakeTestCase {
 		$this->assertTrue($this->Config->write($config));
 		$this->Config->loadFile();
 
-		debug(Configure::read('tester'));
-		debug(Configure::read('Config'));
-		$this->assertEqual('burzum', Configure::read('Config.tester'));
+		$this->assertEqual('burzum', Configure::read('AppConfig.tester'));
 		$this->assertEqual(array('one' => 1, 'two' => 2), Configure::read('AppConfig.nested'));
 	}
 
