@@ -71,13 +71,14 @@ class Config extends ConfigAppModel {
 			}
 		}
 
-		$defaults = array($this->alias => Configure::read($this->alias));
-		return Set::merge($defaults, $newResults);
+		return $newResults;
 	}
 
 /**
  * Writes a config file
  *
+ * @param string file with or without path, if without path its saved to APP/tmp
+ * @param string keypath like Media.imageSizes.small
  * @return boolean
  * @access public
  */
