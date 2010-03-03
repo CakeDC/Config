@@ -25,13 +25,13 @@ class ConfigsController extends ConfigAppController {
  */
 	public function admin_index() {
 		if (!empty($this->data)) {
-			if ($this->Configuration->write($this->data)) {
+			if ($this->Config->write($this->data)) {
 				$this->Session->setFlash(__('Configuration saved', true));
 			} else {
 				$this->Session->setFlash(__('Could not save configuration', true));
 			}
 		} else {
-			$this->data['Configuration'] = Configure::read('AppConfig');
+			$this->data['Config'] = Configure::read('AppConfig');
 		}
 	}
 

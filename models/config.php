@@ -24,9 +24,9 @@ class Config extends ConfigAppModel {
  * @return boolean
  * @access public
  */
-	public static function write($config) {
-		$this->deleteAll(array(
-			$this->alias . '.key' => array_keys($config[$this->alias])), false);
+	public function write($config) {
+		$alias = $this->alias;
+		$this->deleteAll(array($this->alias . '.key' => array_keys($config[$this->alias])), false);
 
 		foreach ($config[$this->alias] as $key => $value) {
 			$data = array(
@@ -59,7 +59,7 @@ class Config extends ConfigAppModel {
  * @return array Virtual field array
  * @access public
  */
-	public static function buildFields($results = array()) {
+	public function buildFields($results = array()) {
 		if (empty($results)) {
 			return $results;
 		}
@@ -81,9 +81,9 @@ class Config extends ConfigAppModel {
  * @return boolean
  * @access public
  */
-	public static function writeFile($file = null) {
+	public function writeFile($file = null) {
 		if (empty($file)) {
-			$file = $this->configFile;
+			$file = TMP . self::$configFile;
 		}
 
 		$config = $this->find('all');
@@ -101,7 +101,7 @@ class Config extends ConfigAppModel {
  */
 	public static function loadFile($file = null) {
 		if (empty($file)) {
-			$file = TMP .  $this->configFile;
+			$file = TMP .  self::$configFile;
 		}
 		if (file_exists($file)) {
 			unset($config);

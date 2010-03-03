@@ -1,6 +1,6 @@
 <h2><?php __('Global Application Configuration'); ?></h2>
 <?php
-	echo $form->create('Configuration', array('action' => 'index'));
+	echo $form->create('Config', array('action' => 'index'));
 	echo $form->input('front_page_threshold', array(
 		'label' => __('Front page Threshold', true)));
 	echo $form->input('max_follwer_cap', array(

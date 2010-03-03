@@ -58,6 +58,7 @@ class ConfigTestCase extends CakeTestCase {
 		$this->Config->loadFile();
 
 		debug(Configure::read('tester'));
+		debug(Configure::read('Config'));
 		$this->assertEqual('burzum', Configure::read('Config.tester'));
 		$this->assertEqual(array('one' => 1, 'two' => 2), Configure::read('AppConfig.nested'));
 	}
