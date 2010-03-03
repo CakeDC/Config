@@ -106,7 +106,7 @@ class Config extends ConfigAppModel {
 		if (file_exists($file)) {
 			unset($config);
 			include($file);
-			return Configure::write(array('AppConfig'  =>  $config));
+			return Configure::write((array)$config);
 		}
 		return false;
 	}
