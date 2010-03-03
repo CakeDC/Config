@@ -81,12 +81,24 @@ class Config extends ConfigAppModel {
  * @return boolean
  * @access public
  */
-	public function writeFile($file = null) {
+	public function writeFile($file = null, $key = null) {
 		if (empty($file)) {
 			$file = TMP . self::$configFile;
+		} else {
+			if (!strstr($file, DS)) {
+				$file = TMP . $file;
+			}
 		}
 
-		$config = $this->find('all');
+		$conditions = array();
+		if (is_string($key)) {
+			$conditions[$this->alias . '.key LIKE'] = $key . '%';
+		}
+
+		$config = $this->find('all', array(
+			'recursive' => -1,
+			'conditions' => $conditions));
+
 		$nl = "\n";
 		$content = '<?php' . $nl . '$config = ' . var_export($config[$this->alias], true) . $nl . ' ?>';
 		$File = new File($file);
@@ -102,7 +114,12 @@ class Config extends ConfigAppModel {
 	public static function loadFile($file = null) {
 		if (empty($file)) {
 			$file = TMP .  self::$configFile;
+		} else {
+			if (!strstr($file, DS)) {
+				$file = TMP . $file;
+			}
 		}
+
 		if (file_exists($file)) {
 			unset($config);
 			include($file);

@@ -33,6 +33,39 @@ class ConfigFixture extends CakeTestFixture {
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1)));
 
+	public function __construct() {
+		$this->records = array(
+			array(
+				'id' => 1,
+				'namespace' => null,
+				'model' => null,
+				'foreign_key' => null,
+				'key' => 'Media.imageSizes.large.width',
+				'value' => serialize('500')),
+			array(
+				'id' => 2,
+				'namespace' => null,
+				'model' => null,
+				'foreign_key' => null,
+				'key' => 'Media.imageSizes.large.height',
+				'value' => serialize('500')),
+			array(
+				'id' => 3,
+				'namespace' => null,
+				'model' => null,
+				'foreign_key' => null,
+				'key' => 'Media.imageSizes.small.width',
+				'value' => serialize('100')),
+			array(
+				'id' => 4,
+				'namespace' => null,
+				'model' => null,
+				'foreign_key' => null,
+				'key' => 'Media.imageSizes.small.height',
+				'value' => serialize('100')),
+			);
+		parent::__construct();
+	}
 /**
  * Records
  *
