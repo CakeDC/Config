@@ -49,9 +49,10 @@ class ConfigsController extends ConfigAppController {
 		}
 
 		if (!empty($plugin)) {
-			$this->viewPath = APP . $plugin . DS . 'views' . DS . 'configs' . DS;
+			$this->viewPath = App::pluginPath($plugin) . 'views' . DS . 'configs' . DS;
 		} else {
-			$this->viewPath = VIEWS . 'configs' . DS;
+			// $this->viewPath = App::pluginPath('config') . 'views' . DS . 'configs' . DS;
+			//$this->viewPath = VIEWS . 'configs' . DS;
 		}
 
 		$this->render($section);
