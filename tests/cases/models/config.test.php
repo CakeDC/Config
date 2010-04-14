@@ -1,5 +1,6 @@
 <?php
 App::import('Model', 'Config.Config');
+
 class ConfigTestCase extends CakeTestCase {
 
 /**
@@ -59,8 +60,29 @@ class ConfigTestCase extends CakeTestCase {
 					'two' => 2)));
 
 		$this->assertTrue($this->Config->write($config));
-		$this->Config->loadFile();
 
+		$this->assertNull(Configure::read('tester'));
+		$result = $this->Config->readFile();
+		$expected = array_merge(
+			array(
+				'Media.imageSizes.large.width' => 500,
+				'Media.imageSizes.large.height' => 500),
+			$config['Config']);
+		$this->assertEqual($result, $expected);
+
+		$this->assertNull(Configure::read('tester'));
+		$result = $this->Config->readFileAsArray();
+		$expected = Set::merge(
+			array(
+				'Media' => array(
+					'imageSizes' => array(
+						'large' => array(
+							'width' => 500,
+							'height' => 500)))),
+			$config['Config']);
+		$this->assertEqual($result, $expected);
+
+		$this->Config->loadFile();
 		$this->assertEqual('burzum', Configure::read('tester'));
 		$this->assertEqual(array('one' => 1, 'two' => 2), Configure::read('nested'));
 
@@ -88,11 +110,38 @@ class ConfigTestCase extends CakeTestCase {
  */
 	public function testWriteFile() {
 		$testFile = sha1(rand(10000, 90000000)) . '.php';
-		$this->Config->writeFile($testFile, 'Media.imageSizes.small');
+		$this->Config->writeFile($testFile, 'Media.imageSizes.large');
 		$this->assertTrue(is_file(TMP . $testFile));
 		if (is_file(TMP . $testFile)) {
 			unlink(TMP . $testFile);
 		}
+	}
+
+/**
+ * Test keysToArray method
+ *
+ * @return void
+ * @access public
+ */
+	public function testKeysToArray() {
+		$data = array(
+			'test' => 'result',
+			'foo' => 'bar');
+
+		$result = $this->Config->keysToArray($data);
+		$expected = $data;
+		$this->assertEqual($result, $expected);
+
+		$data = array(
+			'test' => 'result',
+			'foo.0' => 'a',
+			'foo.1' => 'b',
+			'foo.c' => 'd');
+		$result = $this->Config->keysToArray($data);
+		$expected = array(
+			'test' => 'result',
+			'foo' => array('a', 'b', 'c' => 'd'));
+		$this->assertEqual($result, $expected);
 	}
 
 }

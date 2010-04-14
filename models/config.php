@@ -99,7 +99,6 @@ class Config extends ConfigAppModel {
 		$config = $this->find('all', array(
 			'recursive' => -1,
 			'conditions' => $conditions));
-
 		$nl = "\n";
 		$content = '<?php' . $nl . '$config = ' . var_export($config[$this->alias], true) . $nl . ' ?>';
 		$File = new File($file);
@@ -109,11 +108,29 @@ class Config extends ConfigAppModel {
 /**
  * Loads a config file
  *
- * @return boolean
+ * @param string $file Configuration file
+ * @return boolean Success
  * @access public
  */
 	public static function loadFile($file = null) {
-		if (empty($file)) {
+		$fileData = self::readFile($file);
+
+		$success = false;
+		if ($fileData !== false) {
+			$success = Configure::write($fileData);
+		}
+		return $success;
+	}
+
+/**
+ * Reads the content of the config file and returns its values
+ *
+ * @param string $file Configuration file
+ * @return array All values formatted as a multidimensional array, false if an error occured
+ * @access public
+ */
+	public static function readFile($file = null) {
+		if (is_null($file)) {
 			$file = TMP .  self::$configFile;
 		} else {
 			if (!strstr($file, DS)) {
@@ -121,19 +138,53 @@ class Config extends ConfigAppModel {
 			}
 		}
 
+		$result = false;
 		if (file_exists($file)) {
 			unset($config);
 			include($file);
-			return Configure::write((array)$config);
+			$result = (array) $config;
 		}
-		return false;
+		return $result;
 	}
 
 /**
- * @todo implement Model Config::edit() method
+ * Reads the content of the config file and returns all its values in nested arrays
+ *
+ * @param string $file Configuration file
+ * @return array All values in nested arrays, false if there are no data
+ * @access public
  */
-	public static function edit() {
-		
+	public static function readFileAsArray($file = null) {
+		$fileData = self::readFile($file);
+
+		$result = false;
+		if ($fileData !== false) {
+			$result = self::keysToArray($fileData);
+		}
+		return $result;
+	}
+
+/**
+ * Convenience method for converting pointed key / values in nested arrays
+ *
+ * @param array $in Values indexed by pointed key
+ * @return array Multidimensional array
+ * @access public
+ */
+	public static function keysToArray($in = array()) {
+		$result = array();
+
+		if (!empty($in) && is_array($in)) {
+			foreach($in as $key => $val) {
+				if (strpos($key, '.') !== false) {
+					$result = Set::insert($result, $key, $val);
+				} else {
+					$result[$key] = $val;
+				}
+			}
+		}
+
+		return $result;
 	}
 
 }
