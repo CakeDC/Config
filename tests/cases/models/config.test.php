@@ -63,11 +63,14 @@ class ConfigTestCase extends CakeTestCase {
 
 		$this->assertNull(Configure::read('tester'));
 		$result = $this->Config->readFile();
-		$expected = array_merge(
-			array(
-				'Media.imageSizes.large.width' => 500,
-				'Media.imageSizes.large.height' => 500),
-			$config['Config']);
+		$expected = array(
+			'Media.imageSizes.large.width' => 500,
+			'Media.imageSizes.large.height' => 500,
+			'tester' => 'burzum',
+			'foo' => 'bar',
+			'cakephp' => '1.2',
+			'nested.one' => 1,
+			'nested.two' => 2);
 		$this->assertEqual($result, $expected);
 
 		$this->assertNull(Configure::read('tester'));
@@ -100,6 +103,48 @@ class ConfigTestCase extends CakeTestCase {
 	public function testBuildFields() {
 		$result = $this->Config->buildFields();
 		$this->assertTrue(empty($result));
+	}
+
+/**
+ * Test write method
+ *
+ * @return void
+ * @access public
+ */
+	public function testWrite() {
+		$testFile = 'tmp_config.php';
+		Config::$configFile = $testFile;
+
+		$f = new Exception('f');
+		$data = array('Config' => array(
+			'a' => array(
+				'b' => 'c',
+				'd'),
+			'e' => $f,
+			'g' => array(
+				'h' => array(
+					'i'))));
+		$this->assertTrue($this->Config->write($data));
+		$this->assertTrue(is_file(TMP . $testFile));
+
+		$result = $this->Config->find('all');
+		$expected = array(
+			'Media.imageSizes.large.width' => 500,
+			'Media.imageSizes.large.height' => 500,
+			'a.b' => 'c',
+			'a.0' => 'd',
+			'e' => $f,
+			'g.h.0' => 'i');
+		$this->assertEqual(array_keys($result['Config']), array_keys($expected));
+		$this->assertIsA($result['Config']['e'], 'Exception');
+		unset($expected['e']);
+		foreach($expected as $key => $value) {
+			$this->assertEqual($result['Config'][$key], $expected[$key]);
+		}
+
+		if (is_file(TMP . $testFile)) {
+			unlink(TMP . $testFile);
+		}
 	}
 
 /**
@@ -141,6 +186,37 @@ class ConfigTestCase extends CakeTestCase {
 		$expected = array(
 			'test' => 'result',
 			'foo' => array('a', 'b', 'c' => 'd'));
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * Test arrayToKeys method
+ *
+ * @return void
+ * @access public
+ */
+	public function testArrayToKeys() {
+		$data = array(
+			'test' => 'result',
+			'foo' => 'bar');
+
+		$result = $this->Config->arrayToKeys($data);
+		$expected = $data;
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Config->arrayToKeys($data, 'foo');
+		$expected = array(
+			'foo.test' => 'result',
+			'foo.foo' => 'bar');
+		$this->assertEqual($result, $expected);
+
+		$data['foo'] = array('a', 'b', 'c' => 'd');
+		$result = $this->Config->arrayToKeys($data);
+		$expected = array(
+			'test' => 'result',
+			'foo.0' => 'a',
+			'foo.1' => 'b',
+			'foo.c' => 'd');
 		$this->assertEqual($result, $expected);
 	}
 

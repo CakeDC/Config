@@ -25,7 +25,7 @@ class Config extends ConfigAppModel {
  * @access public
  */
 	public function write($config) {
-		$alias = $this->alias;
+		$config[$this->alias] = $this->arrayToKeys($config[$this->alias]);
 		$this->deleteAll(array($this->alias . '.key' => array_keys($config[$this->alias])), false);
 
 		foreach ($config[$this->alias] as $key => $value) {
@@ -180,6 +180,33 @@ class Config extends ConfigAppModel {
 					$result = Set::insert($result, $key, $val);
 				} else {
 					$result[$key] = $val;
+				}
+			}
+		}
+
+		return $result;
+	}
+
+/**
+ * Convenience method for converting nested arrays to pointed key / values, using recursivity
+ *
+ * @param array $in Multidimensional array to convert
+ * @param string $path Base path to prepend to generated keys in this array
+ * @return array All values indexed by their pointed key
+ * @access public
+ */
+	public static function arrayToKeys($in = array(), $path = '') {
+		$result = array();
+		if (!empty($path) && substr($path, -1) != '.') {
+			$path .= '.';
+		}
+
+		if (!empty($in) && is_array($in)) {
+			foreach($in as $key => $val) {
+				if (is_array($val)) {
+					$result += self::arrayToKeys($val, $path . $key . '.');
+				} else {
+					$result[$path . $key] = $val;
 				}
 			}
 		}
