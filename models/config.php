@@ -99,6 +99,9 @@ class Config extends ConfigAppModel {
 		$config = $this->find('all', array(
 			'recursive' => -1,
 			'conditions' => $conditions));
+		if (empty($config)) {
+			$config[$this->alias] = array();
+		}
 		$nl = "\n";
 		$content = '<?php' . $nl . '$config = ' . var_export($config[$this->alias], true) . $nl . ' ?>';
 		$File = new File($file);

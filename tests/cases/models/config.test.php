@@ -163,6 +163,37 @@ class ConfigTestCase extends CakeTestCase {
 	}
 
 /**
+ * testWriteFile when no config entries in the database match the key
+ * A file must be written with empty data inside
+ *
+ * @return void
+ * @access public
+ */
+	public function testWriteFileNoConfig() {
+		$testFile = sha1(rand(10000, 90000000)) . '.php';
+		$this->Config->writeFile($testFile, 'Key.Not.Valid');
+		$this->assertTrue(is_file(TMP . $testFile));
+		if (is_file(TMP . $testFile)) {
+			$generatedContent = file_get_contents(TMP . $testFile);
+			$expectedTokens = array(
+				array(T_OPEN_TAG, '<?php'),
+				array(T_VARIABLE, '$config'), '=', array(T_ARRAY, 'array'), '(', ')',
+				array(T_CLOSE_TAG, '?>'));
+			$tokens = token_get_all(file_get_contents(TMP . $testFile));
+			$cleanedTokens = array();
+			foreach($tokens as $token) {
+				if (is_string($token)) {
+					$cleanedTokens[] = $token;
+				} elseif ($token[0] !== T_WHITESPACE) {
+					$cleanedTokens[] = array($token[0], trim($token[1]));
+				}
+			}
+			$this->assertIdentical($expectedTokens, $cleanedTokens);
+			unlink(TMP . $testFile);
+		}
+	}
+
+/**
  * Test keysToArray method
  *
  * @return void
