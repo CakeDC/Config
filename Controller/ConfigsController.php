@@ -1,4 +1,14 @@
 <?php
+/**
+ * Copyright 2010 - 2012, Cake Development Corporation (http://cakedc.com)
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright Copyright 2010 - 2012, Cake Development Corporation (http://cakedc.com)
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
+
 class ConfigsController extends ConfigAppController {
 
 /**
@@ -58,11 +68,10 @@ class ConfigsController extends ConfigAppController {
 		}
 
 		if (!empty($plugin)) {
-			$this->viewPath = App::pluginPath($plugin) . 'views' . DS . 'configs' . DS;
+			$this->viewPath = CakePlugin::path($plugin) . 'View' . DS . 'configs' . DS;
 		}
 
 		$this->render($section);
 	}
 
 }
-?>

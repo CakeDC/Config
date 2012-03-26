@@ -1,5 +1,5 @@
 <?php
-App::import('Model', 'Config.Config');
+App::uses('Config', 'Config.Model');
 
 class ConfigTestCase extends CakeTestCase {
 
