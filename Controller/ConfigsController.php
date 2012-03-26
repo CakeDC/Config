@@ -34,14 +34,14 @@ class ConfigsController extends ConfigAppController {
  * @access public
  */
 	public function admin_index() {
-		if (!empty($this->data)) {
-			if ($this->Config->write($this->data)) {
+		if (!empty($this->request->data)) {
+			if ($this->Config->write($this->request->data)) {
 				$this->Session->setFlash(__('Configuration saved'));
 			} else {
 				$this->Session->setFlash(__('Could not save configuration'));
 			}
 		} else {
-			$this->data['Config'] = Configure::read('AppConfig');
+			$this->request->data['Config'] = Configure::read('AppConfig');
 		}
 	}
 
@@ -53,18 +53,18 @@ class ConfigsController extends ConfigAppController {
  */
 	public function admin_edit($section = null) {
 		$plugin = null;
-		if (isset($this->params['named']['plugin'])) {
-			$plugin = $this->params['named']['plugin'];
+		if (isset($this->request->params['named']['plugin'])) {
+			$plugin = $this->request->params['named']['plugin'];
 		}
 
-		if (!empty($this->data)) {
-			if ($this->Config->write($this->data)) {
+		if (!empty($this->request->data)) {
+			if ($this->Config->write($this->request->data)) {
 				$this->Session->setFlash(__('Configuration saved'));
 			} else {
 				$this->Session->setFlash(__('Could not save configuration'));
 			}
 		} else {
-			$this->data['Config'] = $this->Config->readFileAsArray();
+			$this->request->data['Config'] = $this->Config->readFileAsArray();
 		}
 
 		if (!empty($plugin)) {
