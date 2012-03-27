@@ -1,4 +1,7 @@
 <?php
+
+App::import('Core', 'File');
+
 class Config extends ConfigAppModel {
 
 /**
