@@ -115,12 +115,10 @@ class ConfigTestCase extends CakeTestCase {
 		$testFile = 'tmp_config.php';
 		Config::$configFile = $testFile;
 
-		$f = new Exception('f');
 		$data = array('Config' => array(
 			'a' => array(
 				'b' => 'c',
 				'd'),
-			'e' => $f,
 			'g' => array(
 				'h' => array(
 					'i'))));
@@ -133,11 +131,9 @@ class ConfigTestCase extends CakeTestCase {
 			'Media.imageSizes.large.height' => 500,
 			'a.b' => 'c',
 			'a.0' => 'd',
-			'e' => $f,
 			'g.h.0' => 'i');
-		$this->assertEqual(array_keys($result['Config']), array_keys($expected));
-		$this->assertIsA($result['Config']['e'], 'Exception');
-		unset($expected['e']);
+		$this->assertEqual($result['Config'], $expected);
+
 		foreach($expected as $key => $value) {
 			$this->assertEqual($result['Config'][$key], $expected[$key]);
 		}
