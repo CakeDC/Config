@@ -127,7 +127,7 @@ class ConfigTestCase extends CakeTestCase {
 		$this->assertTrue($this->Config->write($data));
 		$this->assertTrue(is_file(TMP . $testFile));
 
-		$result = $this->Config->find('all');
+		$result = $this->Config->find('all', array('order' => 'namespace ASC'));
 		$expected = array(
 			'Media.imageSizes.large.width' => 500,
 			'Media.imageSizes.large.height' => 500,
