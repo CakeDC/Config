@@ -1,5 +1,7 @@
 # Config Plugin for CakePHP #
 
+for cake 2.X
+
 ## Requirements ##
 
 * PHP version: PHP 5.2+
