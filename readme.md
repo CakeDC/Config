@@ -2,6 +2,35 @@
 
 for cake 2.X
 
+## Plugin Puprose ##
+
+Plugin is supposed to be used as site configuration storage.
+Plugin provide db storage for site configuration.
+
+Plugin should loaded next way: CakePlugin::load('Config', array('bootstrap' => true));
+Plugin need to load with bootstrap file, that will loads configuration data into the memory.
+
+### Edit and save configuration ###
+
+Lets define simplest form with one setting parameter where we will store default site language.
+
+	<?php
+		echo $this->Form->create('Config', array('url' => $this->here));
+
+		echo $this->Form->input('Config.Default.language', array(
+			'label' => __('Default language', true)));
+		
+		echo $this->Form->end(__('Save these settings', true));
+	?>
+
+Please mention that in te edit form need to use value name with "Config." preffx.
+
+Best way to have new setting pages for plugin separated from Configs plugin is use cakephp convantion about plugin views overloading.  So 'default.ctp' edit view page possible to place in app/View/Plugin/Config/Configs folder. After that default settings will available using /admin/config/configs/edit/default url.
+	
+## Configuration usage ###
+
+Configuration values accessible using Configure class. So if you have value Default.language stored in database you will able to read it using Configure::read('Default.language') call.
+
 ## Requirements ##
 
 * PHP version: PHP 5.2+
