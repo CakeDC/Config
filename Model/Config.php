@@ -10,6 +10,7 @@
  */
 
 App::uses('File', 'Utility');
+App::uses('ConfigAppModel', 'Config.Model');
 
 class Config extends ConfigAppModel {
 
@@ -17,7 +18,6 @@ class Config extends ConfigAppModel {
  * Name
  *
  * @var string Name
- * @access public
  */
 	public $name = 'Config';
 
@@ -25,7 +25,6 @@ class Config extends ConfigAppModel {
  * Config file to deal with
  *
  * @var string
- * @access public
  */
 	public static $configFile = 'config.php';
 
@@ -33,10 +32,11 @@ class Config extends ConfigAppModel {
  * Write key / value pairs to the database
  *
  * @param array Config data
+ * @param string $namespace
+ * @param boolean write file flag
  * @return boolean
- * @access public
  */
-	public function write($config) {
+	public function write($config, $namespace = null, $writeFile = true) {
 		$config[$this->alias] = $this->arrayToKeys($config[$this->alias]);
 		$this->deleteAll(array($this->alias . '.key' => array_keys($config[$this->alias])), false);
 
@@ -44,12 +44,15 @@ class Config extends ConfigAppModel {
 			$data = array(
 				$this->alias => array(
 					'key' => $key,
+					'namespace' => $namespace,
 					'value' => serialize($value)));
 			$this->create();
 			$this->save($data, false);
 		}
-
-		return $this->writeFile();
+		if ($writeFile) {
+			return $this->writeFile();
+		}
+		return true;
 	}
 
 /**
@@ -58,7 +61,6 @@ class Config extends ConfigAppModel {
  * @param array
  * @param boolean
  * @return array
- * @access public
  */
 	public function afterFind($results) {
 		return $this->buildFields($results);
@@ -69,7 +71,6 @@ class Config extends ConfigAppModel {
  *
  * @param array Raw results as they come back from the database
  * @return array Virtual field array
- * @access public
  */
 	public function buildFields($results = array()) {
 		if (empty($results)) {
@@ -92,7 +93,6 @@ class Config extends ConfigAppModel {
  * @param string file with or without path, if without path its saved to APP/tmp
  * @param string keypath like Media.imageSizes.small
  * @return boolean
- * @access public
  */
 	public function writeFile($file = null, $key = null) {
 		if (empty($file)) {
@@ -125,7 +125,6 @@ class Config extends ConfigAppModel {
  *
  * @param string $file Configuration file
  * @return boolean Success
- * @access public
  */
 	public static function loadFile($file = null) {
 		$fileData = self::readFile($file);
@@ -142,7 +141,6 @@ class Config extends ConfigAppModel {
  *
  * @param string $file Configuration file
  * @return array All values formatted as a multidimensional array, false if an error occured
- * @access public
  */
 	public static function readFile($file = null) {
 		if (is_null($file)) {
@@ -167,7 +165,6 @@ class Config extends ConfigAppModel {
  *
  * @param string $file Configuration file
  * @return array All values in nested arrays, false if there are no data
- * @access public
  */
 	public static function readFileAsArray($file = null) {
 		$fileData = self::readFile($file);
@@ -184,7 +181,6 @@ class Config extends ConfigAppModel {
  *
  * @param array $in Values indexed by pointed key
  * @return array Multidimensional array
- * @access public
  */
 	public static function keysToArray($in = array()) {
 		$result = array();
@@ -208,7 +204,6 @@ class Config extends ConfigAppModel {
  * @param array $in Multidimensional array to convert
  * @param string $path Base path to prepend to generated keys in this array
  * @return array All values indexed by their pointed key
- * @access public
  */
 	public static function arrayToKeys($in = array(), $path = '') {
 		$result = array();
@@ -230,4 +225,3 @@ class Config extends ConfigAppModel {
 	}
 
 }
-?>

@@ -9,6 +9,7 @@
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-class ConfigAppModel extends AppModel {
+App::uses('AppModel', 'Model');
+ class ConfigAppModel extends AppModel {
 	
 }

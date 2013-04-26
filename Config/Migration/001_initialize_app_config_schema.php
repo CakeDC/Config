@@ -1,30 +1,6 @@
 <?php
 class M3ac0d08a21fcheefbic9p4df1829f9b5 extends CakeMigration {
-/**
- * Migration description
- *
- * @var string
- * @access public
- */
-	public $description = '';
 
-/**
- * Dependency array. Define what minimum version required for other part of db schema
- *
- * Migration defined like 'app.m49ad0b91bd4c4bd482cc1de43461d00a' or 'plugin.PluginName.m49ad0d8518904f518db21bb43461d00a'
- * 
- * @var array $dependendOf
- * @access public
- */
-	public $dependendOf = array();
-
-/**
- * Shell object
- *
- * @var MigrationInterface
- * @access public
- */
-	public $Shell;
 
 /**
  * Migration array
