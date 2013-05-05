@@ -62,7 +62,7 @@ class Config extends ConfigAppModel {
  * @param boolean
  * @return array
  */
-	public function afterFind($results) {
+	public function afterFind($results = array(), $primary = false) {
 		return $this->buildFields($results);
 	}
 
@@ -144,7 +144,7 @@ class Config extends ConfigAppModel {
  */
 	public static function readFile($file = null) {
 		if (is_null($file)) {
-			$file = TMP .  self::$configFile;
+			$file = TMP . self::$configFile;
 		} else {
 			if (!strstr($file, DS)) {
 				$file = TMP . $file;
@@ -154,8 +154,8 @@ class Config extends ConfigAppModel {
 		$result = false;
 		if (file_exists($file)) {
 			unset($config);
-			include($file);
-			$result = (array) $config;
+			include ($file);
+			$result = (array)$config;
 		}
 		return $result;
 	}
@@ -186,7 +186,7 @@ class Config extends ConfigAppModel {
 		$result = array();
 
 		if (!empty($in) && is_array($in)) {
-			foreach($in as $key => $val) {
+			foreach ($in as $key => $val) {
 				if (strpos($key, '.') !== false) {
 					$result = Set::insert($result, $key, $val);
 				} else {
@@ -212,7 +212,7 @@ class Config extends ConfigAppModel {
 		}
 
 		if (!empty($in) && is_array($in)) {
-			foreach($in as $key => $val) {
+			foreach ($in as $key => $val) {
 				if (is_array($val)) {
 					$result += self::arrayToKeys($val, $path . $key . '.');
 				} else {

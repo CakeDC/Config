@@ -10,6 +10,5 @@
  */
 
 App::uses('AppModel', 'Model');
- class ConfigAppModel extends AppModel {
-	
+class ConfigAppModel extends AppModel {
 }

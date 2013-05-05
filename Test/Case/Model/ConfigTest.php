@@ -17,7 +17,7 @@ class ConfigTestCase extends CakeTestCase {
  * @return void
  * @access public
  */
-	public function startTest() {
+	public function startTest($method) {
 		$this->Config = ClassRegistry::init('Config.Config');
 	}
 
@@ -27,7 +27,7 @@ class ConfigTestCase extends CakeTestCase {
  * @return void
  * @access public
  */
-	public function endTest() {
+	public function endTest($method) {
 		unset($this->Config);
 		ClassRegistry::flush();
 	}
