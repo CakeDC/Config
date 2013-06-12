@@ -53,7 +53,8 @@ class Config extends ConfigAppModel {
 			$this->save($data, false);
 		}
 
-		if ($new = array_diff_assoc($config[$this->alias], $current[$this->alias])) {
+		$compare = isset($current[$this->alias]) ? $current[$this->alias] : array();
+		if ($new = array_diff_assoc($config[$this->alias], $compare)) {
 			$old = array();
 			foreach ($new as $key => $value) {
 				$old[$key] = isset($current[$this->alias][$key]) ? $current[$this->alias][$key] : null;
