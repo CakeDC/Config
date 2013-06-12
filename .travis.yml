@@ -1,0 +1,56 @@
+language: php
+
+php:
+  - 5.2.8
+  - 5.3
+  - 5.4
+
+env:
+  - CAKE_VERSION=master DB=mysql
+  - CAKE_VERSION=master DB=pgsql
+  - CAKE_VERSION=2.4 DB=mysql
+  - CAKE_VERSION=2.4 DB=pgsql
+
+before_script:
+  - git clone --depth 1 --branch $CAKE_VERSION git://github.com/cakephp/cakephp ../cakephp && cd ../cakephp
+  - cp -R ../Config plugins/Config
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE cakephp_test;'; fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'CREATE DATABASE cakephp_test;' -U postgres; fi"
+  - chmod -R 777 ../cakephp/app/tmp
+  - set +H
+  - echo "<?php
+    class DATABASE_CONFIG {
+    private \$sources = array(
+      'mysql' => array(
+        'datasource' => 'Database/Mysql',
+        'database' => 'cakephp_test',
+        'host' => '0.0.0.0',
+        'login' => 'travis',
+        'persistent' => false,
+      ),
+      'pgsql' => array(
+        'datasource' => 'Database/Postgres',
+        'database' => 'cakephp_test',
+        'host' => '127.0.0.1',
+        'login' => 'postgres',
+        'persistent' => false,
+        'schema' => array(
+          'test' => 'public',
+        ),
+      ),
+    );
+    public \$test = array();
+    public function __construct() {
+      \$db = 'mysql';
+      if (!empty(\$_SERVER['DB'])) {
+        \$db = \$_SERVER['DB'];
+      }
+      \$this->test = \$this->sources[\$db];
+    }
+    }" > ../cakephp/app/Config/database.php
+
+script:
+  - ./lib/Cake/Console/cake test Config AllConfig --stderr
+
+notifications:
+  email: false
