@@ -74,6 +74,7 @@ Redistributions of files must retain the above copyright notice.
 ## Branch strategy ##
 
 * [![Build Status](https://travis-ci.org/CakeDC/Config.png?branch=master)](https://travis-ci.org/CakeDC/Config) The master branch holds the STABLE latest version of the plugin.
+
 * [![Build Status](https://travis-ci.org/CakeDC/Config.png?branch=develop)](https://travis-ci.org/CakeDC/Config) Develop branch is UNSTABLE and used to test new features before releasing them.
 
 Previous maintenance versions are named after the CakePHP compatible version, for example, branch 1.3 is the maintenance version compatible with CakePHP 1.3.
