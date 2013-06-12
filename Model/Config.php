@@ -40,7 +40,7 @@ class Config extends ConfigAppModel {
 	public function write($config, $namespace = null, $writeFile = true) {
 		$config[$this->alias] = $this->arrayToKeys($config[$this->alias]);
 		$conditions = array($this->alias . '.key' => array_keys($config[$this->alias]));
-		$current = $this->find('all', compact($conditions));
+		$current = $this->find('all', compact('conditions'));
 		$this->deleteAll($conditions, false);
 
 		foreach ($config[$this->alias] as $key => $value) {
