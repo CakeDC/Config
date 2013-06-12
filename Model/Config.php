@@ -53,6 +53,8 @@ class Config extends ConfigAppModel {
 			$this->save($data, false);
 		}
 
+		$result = $writeFile ? $this->writeFile() && $this->loadFile() : true;
+
 		$compare = isset($current[$this->alias]) ? $current[$this->alias] : array();
 		if ($new = array_diff_assoc($config[$this->alias], $compare)) {
 			$old = array();
@@ -62,10 +64,7 @@ class Config extends ConfigAppModel {
 			$this->getEventManager()->dispatch(new CakeEvent('Config.Config.change', $this, compact('old', 'new')));
 		}
 
-		if ($writeFile) {
-			return $this->writeFile() && $this->loadFile();
-		}
-		return true;
+		return $result;
 	}
 
 /**
