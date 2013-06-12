@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 5.2.8
   - 5.2
   - 5.3
   - 5.4
@@ -13,40 +12,62 @@ env:
   - CAKE_VERSION=2.4 DB=pgsql
 
 before_script:
-  - git clone --depth 1 --branch $CAKE_VERSION git://github.com/cakephp/cakephp ../cakephp && cd ../cakephp
-  - cp -R ../Config plugins/Config
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE cakephp_test;'; fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'CREATE DATABASE cakephp_test;' -U postgres; fi"
-  - chmod -R 777 ../cakephp/app/tmp
+  - git clone git://github.com/cakephp/cakephp ../cakephp && cd ../cakephp && git checkout $CAKE_VERSION
+  - cp -R ../Config plugins/Config
+  - chmod -R 777 app/tmp
   - set +H
   - echo "<?php
     class DATABASE_CONFIG {
-    private \$sources = array(
+    private \$identities = array(
       'mysql' => array(
         'datasource' => 'Database/Mysql',
-        'database' => 'cakephp_test',
         'host' => '0.0.0.0',
-        'login' => 'travis',
-        'persistent' => false,
+        'login' => 'travis'
       ),
       'pgsql' => array(
         'datasource' => 'Database/Postgres',
-        'database' => 'cakephp_test',
         'host' => '127.0.0.1',
         'login' => 'postgres',
-        'persistent' => false,
+        'database' => 'cakephp_test',
         'schema' => array(
-          'test' => 'public',
-        ),
-      ),
+          'default' => 'public',
+          'test' => 'public'
+        )
+      )
     );
-    public \$test = array();
+    public \$default = array(
+      'persistent' => false,
+      'host' => '',
+      'login' => '',
+      'password' => '',
+      'database' => 'cakephp_test',
+      'prefix' => ''
+    );
+    public \$test = array(
+      'persistent' => false,
+      'host' => '',
+      'login' => '',
+      'password' => '',
+      'database' => 'cakephp_test',
+      'prefix' => ''
+    );
     public function __construct() {
       \$db = 'mysql';
       if (!empty(\$_SERVER['DB'])) {
         \$db = \$_SERVER['DB'];
       }
-      \$this->test = \$this->sources[\$db];
+      foreach (array('default', 'test') as \$source) {
+        \$config = array_merge(\$this->{\$source}, \$this->identities[\$db]);
+        if (is_array(\$config['database'])) {
+          \$config['database'] = \$config['database'][\$source];
+        }
+        if (!empty(\$config['schema']) && is_array(\$config['schema'])) {
+          \$config['schema'] = \$config['schema'][\$source];
+        }
+        \$this->{\$source} = \$config;
+      }
     }
     }" > ../cakephp/app/Config/database.php
 
