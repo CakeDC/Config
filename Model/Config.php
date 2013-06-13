@@ -10,6 +10,7 @@
  */
 
 App::uses('File', 'Utility');
+App::uses('ConfigAppModel', 'Config.Model');
 
 App::uses('ConfigAppModel', 'Config.Model');
 class Config extends ConfigAppModel {
@@ -18,7 +19,6 @@ class Config extends ConfigAppModel {
  * Name
  *
  * @var string Name
- * @access public
  */
 	public $name = 'Config';
 
@@ -26,31 +26,46 @@ class Config extends ConfigAppModel {
  * Config file to deal with
  *
  * @var string
- * @access public
  */
 	public static $configFile = 'config.php';
 
 /**
- * Write key / value pairs to the database
+ * Write key / value pairs to the database and if some values were changed,
+ * dispatch Config.Config.change event with old and new key / value pairs in its data
  *
  * @param array Config data
+ * @param string $namespace
+ * @param boolean write file flag, this new file is automatically loaded to Configure singleton
  * @return boolean
- * @access public
  */
-	public function write($config) {
+	public function write($config, $namespace = null, $writeFile = true) {
 		$config[$this->alias] = $this->arrayToKeys($config[$this->alias]);
-		$this->deleteAll(array($this->alias . '.key' => array_keys($config[$this->alias])), false);
+		$conditions = array($this->alias . '.key' => array_keys($config[$this->alias]));
+		$current = $this->find('all', compact('conditions'));
+		$this->deleteAll($conditions, false);
 
 		foreach ($config[$this->alias] as $key => $value) {
 			$data = array(
 				$this->alias => array(
 					'key' => $key,
+					'namespace' => $namespace,
 					'value' => serialize($value)));
 			$this->create();
 			$this->save($data, false);
 		}
 
-		return $this->writeFile();
+		$result = $writeFile ? $this->writeFile() && $this->loadFile() : true;
+
+		$compare = isset($current[$this->alias]) ? $current[$this->alias] : array();
+		if ($new = array_diff_assoc($config[$this->alias], $compare)) {
+			$old = array();
+			foreach ($new as $key => $value) {
+				$old[$key] = isset($current[$this->alias][$key]) ? $current[$this->alias][$key] : null;
+			}
+			$this->getEventManager()->dispatch(new CakeEvent('Config.Config.change', $this, compact('old', 'new')));
+		}
+
+		return $result;
 	}
 
 /**
@@ -59,9 +74,8 @@ class Config extends ConfigAppModel {
  * @param array
  * @param boolean
  * @return array
- * @access public
  */
-	public function afterFind($results) {
+	public function afterFind($results = array(), $primary = false) {
 		return $this->buildFields($results);
 	}
 
@@ -70,7 +84,6 @@ class Config extends ConfigAppModel {
  *
  * @param array Raw results as they come back from the database
  * @return array Virtual field array
- * @access public
  */
 	public function buildFields($results = array()) {
 		if (empty($results)) {
@@ -93,7 +106,6 @@ class Config extends ConfigAppModel {
  * @param string file with or without path, if without path its saved to APP/tmp
  * @param string keypath like Media.imageSizes.small
  * @return boolean
- * @access public
  */
 	public function writeFile($file = null, $key = null) {
 		if (empty($file)) {
@@ -126,7 +138,6 @@ class Config extends ConfigAppModel {
  *
  * @param string $file Configuration file
  * @return boolean Success
- * @access public
  */
 	public static function loadFile($file = null) {
 		$fileData = self::readFile($file);
@@ -143,11 +154,10 @@ class Config extends ConfigAppModel {
  *
  * @param string $file Configuration file
  * @return array All values formatted as a multidimensional array, false if an error occured
- * @access public
  */
 	public static function readFile($file = null) {
 		if (is_null($file)) {
-			$file = TMP .  self::$configFile;
+			$file = TMP . self::$configFile;
 		} else {
 			if (!strstr($file, DS)) {
 				$file = TMP . $file;
@@ -157,8 +167,8 @@ class Config extends ConfigAppModel {
 		$result = false;
 		if (file_exists($file)) {
 			unset($config);
-			include($file);
-			$result = (array) $config;
+			include ($file);
+			$result = (array)$config;
 		}
 		return $result;
 	}
@@ -168,7 +178,6 @@ class Config extends ConfigAppModel {
  *
  * @param string $file Configuration file
  * @return array All values in nested arrays, false if there are no data
- * @access public
  */
 	public static function readFileAsArray($file = null) {
 		$fileData = self::readFile($file);
@@ -185,13 +194,12 @@ class Config extends ConfigAppModel {
  *
  * @param array $in Values indexed by pointed key
  * @return array Multidimensional array
- * @access public
  */
 	public static function keysToArray($in = array()) {
 		$result = array();
 
 		if (!empty($in) && is_array($in)) {
-			foreach($in as $key => $val) {
+			foreach ($in as $key => $val) {
 				if (strpos($key, '.') !== false) {
 					$result = Set::insert($result, $key, $val);
 				} else {
@@ -209,7 +217,6 @@ class Config extends ConfigAppModel {
  * @param array $in Multidimensional array to convert
  * @param string $path Base path to prepend to generated keys in this array
  * @return array All values indexed by their pointed key
- * @access public
  */
 	public static function arrayToKeys($in = array(), $path = '') {
 		$result = array();
@@ -218,7 +225,7 @@ class Config extends ConfigAppModel {
 		}
 
 		if (!empty($in) && is_array($in)) {
-			foreach($in as $key => $val) {
+			foreach ($in as $key => $val) {
 				if (is_array($val)) {
 					$result += self::arrayToKeys($val, $path . $key . '.');
 				} else {
@@ -231,4 +238,3 @@ class Config extends ConfigAppModel {
 	}
 
 }
-?>

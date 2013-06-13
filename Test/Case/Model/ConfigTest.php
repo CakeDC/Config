@@ -17,7 +17,7 @@ class ConfigTestCase extends CakeTestCase {
  * @return void
  * @access public
  */
-	public function startTest() {
+	public function startTest($method) {
 		$this->Config = ClassRegistry::init('Config.Config');
 	}
 
@@ -27,7 +27,7 @@ class ConfigTestCase extends CakeTestCase {
  * @return void
  * @access public
  */
-	public function endTest() {
+	public function endTest($method) {
 		unset($this->Config);
 		ClassRegistry::flush();
 	}
@@ -59,9 +59,10 @@ class ConfigTestCase extends CakeTestCase {
 					'one' => 1,
 					'two' => 2)));
 
-		$this->assertTrue($this->Config->write($config));
-
 		$this->assertNull(Configure::read('tester'));
+		$this->assertTrue($this->Config->write($config));
+		$this->assertEqual(Configure::read('tester'), 'burzum');
+
 		$result = $this->Config->readFile();
 		$expected = array(
 			'Media.imageSizes.large.width' => 500,
@@ -73,7 +74,6 @@ class ConfigTestCase extends CakeTestCase {
 			'nested.two' => 2);
 		$this->assertEqual($result, $expected);
 
-		$this->assertNull(Configure::read('tester'));
 		$result = $this->Config->readFileAsArray();
 		$expected = Set::merge(
 			array(
@@ -122,14 +122,22 @@ class ConfigTestCase extends CakeTestCase {
 			'g' => array(
 				'h' => array(
 					'i'))));
+		CakeEventManager::instance()->attach(array($this, 'eventSaveListener'), 'Config.Config.change', array('passParams' => true));
 		$this->assertTrue($this->Config->write($data));
+		CakeEventManager::instance()->detach(array($this, 'eventSaveListener'), 'Config.Config.change');
+
 		$this->assertTrue(is_file(TMP . $testFile));
+
+		$data['Config']['a']['b'] = 'x';
+		CakeEventManager::instance()->attach(array($this, 'eventChangeListener'), 'Config.Config.change', array('passParams' => true));
+		$this->assertTrue($this->Config->write($data));
+		CakeEventManager::instance()->detach(array($this, 'eventChangeListener'), 'Config.Config.change');
 
 		$result = $this->Config->find('all', array('order' => 'namespace ASC'));
 		$expected = array(
 			'Media.imageSizes.large.width' => 500,
 			'Media.imageSizes.large.height' => 500,
-			'a.b' => 'c',
+			'a.b' => 'x',
 			'a.0' => 'd',
 			'g.h.0' => 'i');
 		$this->assertEqual($result['Config'], $expected);
@@ -141,6 +149,42 @@ class ConfigTestCase extends CakeTestCase {
 		if (is_file(TMP . $testFile)) {
 			unlink(TMP . $testFile);
 		}
+	}
+
+/**
+ * Event handler for testing new configuration values
+ *
+ * @param type $old
+ * @param type $new
+ */
+	public function eventSaveListener($old, $new) {
+		$data = array(
+			'a.b' => 'c',
+			'a.0' => 'd',
+			'g.h.0' => 'i',
+		);
+		$this->assertEqual($new, $data);
+
+		$data = array_fill_keys(array_keys($data), null);
+		$this->assertEqual($old, $data);
+	}
+
+/**
+ * Event handler for testing change of existing configuration value
+ *
+ * @param type $old
+ * @param type $new
+ */
+	public function eventChangeListener($old, $new) {
+		$oldData = array(
+			'a.b' => 'c',
+		);
+		$this->assertEqual($old, $oldData);
+
+		$newData = array(
+			'a.b' => 'x',
+		);
+		$this->assertEqual($new, $newData);
 	}
 
 /**
