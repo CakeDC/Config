@@ -29,16 +29,19 @@ class Config extends ConfigAppModel {
 	public static $configFile = 'config.php';
 
 /**
- * Write key / value pairs to the database
+ * Write key / value pairs to the database and if some values were changed,
+ * dispatch Config.Config.change event with old and new key / value pairs in its data
  *
  * @param array Config data
  * @param string $namespace
- * @param boolean write file flag
+ * @param boolean write file flag, this new file is automatically loaded to Configure singleton
  * @return boolean
  */
 	public function write($config, $namespace = null, $writeFile = true) {
 		$config[$this->alias] = $this->arrayToKeys($config[$this->alias]);
-		$this->deleteAll(array($this->alias . '.key' => array_keys($config[$this->alias])), false);
+		$conditions = array($this->alias . '.key' => array_keys($config[$this->alias]));
+		$current = $this->find('all', compact('conditions'));
+		$this->deleteAll($conditions, false);
 
 		foreach ($config[$this->alias] as $key => $value) {
 			$data = array(
@@ -49,10 +52,19 @@ class Config extends ConfigAppModel {
 			$this->create();
 			$this->save($data, false);
 		}
-		if ($writeFile) {
-			return $this->writeFile();
+
+		$result = $writeFile ? $this->writeFile() && $this->loadFile() : true;
+
+		$compare = isset($current[$this->alias]) ? $current[$this->alias] : array();
+		if ($new = array_diff_assoc($config[$this->alias], $compare)) {
+			$old = array();
+			foreach ($new as $key => $value) {
+				$old[$key] = isset($current[$this->alias][$key]) ? $current[$this->alias][$key] : null;
+			}
+			$this->getEventManager()->dispatch(new CakeEvent('Config.Config.change', $this, compact('old', 'new')));
 		}
-		return true;
+
+		return $result;
 	}
 
 /**
