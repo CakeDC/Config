@@ -11,6 +11,7 @@
 
 App::uses('File', 'Utility');
 
+App::uses('ConfigAppModel', 'Config.Model');
 class Config extends ConfigAppModel {
 
 /**

@@ -9,6 +9,7 @@
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
+App::uses('ConfigAppController', 'Config.Controller');
 class ConfigsController extends ConfigAppController {
 
 /**
