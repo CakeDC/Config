@@ -2,7 +2,7 @@
 
 for cake 2.X
 
-## Plugin Puprose ##
+## Plugin Purpose ##
 
 Plugin is supposed to be used as site configuration storage.
 Plugin provide db storage for site configuration.
