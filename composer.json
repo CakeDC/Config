@@ -1,0 +1,18 @@
+{
+    "name": "cakedc/config",
+    "type": "cakephp-plugin",
+    "description": "CakePHP database driven Config plugin.",
+    "homepage": "http://github.com/CakeDC/Config",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cake Development Corporation",
+            "email": "team@cakedc.com",
+            "homepage": "http://cakedc.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "composer/installers": "*"
+    }
+}
